@@ -171,3 +171,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# lfs
+*.memmap
+*.stl
+*.safetensors
+*.mp4
+*.arrow
