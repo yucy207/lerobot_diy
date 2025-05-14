@@ -478,6 +478,7 @@ class ManipulatorRobot:
             # 这里goal_pos应该是0-200的角度
             # print("teleop_step Goal_Position:", goal_pos)
             self.follower_arms[name].write("Goal_Position", goal_pos)
+            time.sleep(0.001)
             self.logs[f"write_follower_{name}_goal_pos_dt_s"] = time.perf_counter() - before_fwrite_t
 
         # Early exit when recording data is not requested

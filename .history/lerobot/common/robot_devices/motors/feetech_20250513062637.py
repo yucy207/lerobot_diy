@@ -40,8 +40,8 @@ MAX_ID_RANGE = 252
 # an error is raised.
 # LOWER_BOUND_DEGREE = -270
 # UPPER_BOUND_DEGREE = 270
-LOWER_BOUND_DEGREE = -8
-UPPER_BOUND_DEGREE = 55
+LOWER_BOUND_DEGREE = -3
+UPPER_BOUND_DEGREE = 50
 # For joints in percentage (i.e. joints that move linearly like the prismatic joint of a gripper),
 # their nominal range is [0, 100] %. For instance, for Aloha gripper, 0% is fully
 # closed, and 100% is fully open. To account for slight calibration issue, we allow up to

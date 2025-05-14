@@ -479,90 +479,12 @@ class RobopanoptesRobotConfig(ManipulatorRobotConfig):
 
     cameras: dict[str, CameraConfig] = field(
         default_factory=lambda: {
-            # "head": OpenCVCameraConfig(
-            #     camera_index=0,
-            #     fps=30,
-            #     width=640,
-            #     height=480,
-            # ),
-            # "module8_a": OpenCVCameraConfig(
-            #     camera_index=3,
-            #     fps=30,
-            #     width=640,
-            #     height=480,
-            # ),
-            # "module8_b": OpenCVCameraConfig(
-            #     camera_index=0,
-            #     fps=30,
-            #     width=640,
-            #     height=480,
-            # ),
-            # "phone": OpenCVCameraConfig(
-            #     camera_index=1,
-            #     fps=30,
-            #     width=640,
-            #     height=480,
-            # ),
-        }
-    )
-
-    mock: bool = False
-
-@RobotConfig.register_subclass("robopanoptes_small")
-@dataclass
-class RobopanoptesRobotSmallConfig(ManipulatorRobotConfig):
-    calibration_dir: str = ".cache/calibration/robopanoptes_small"
-    # `max_relative_target` limits the magnitude of the relative positional target vector for safety purposes.
-    # Set this to a positive scalar to have the same value for all motors, or a list that is the same length as
-    # the number of motors in your follower arms.
-    max_relative_target: int | None = None
-
-    leader_arms: dict[str, MotorsBusConfig] = field(
-        default_factory=lambda: {
-            "main": FeetechMotorsBusConfig(
-                port="COM3",
-                motors={
-                    # name: (index, model)
-                    "module1": [1, "scs0009"],
-                    "module2": [2, "scs0009"],
-                    "module3": [3, "scs0009"],
-                    "module4": [4, "scs0009"],
-                    "module5": [5, "scs0009"],
-                    "module6": [6, "scs0009"],
-                    "module7": [7, "scs0009"],
-                    "module8": [8, "scs0009"],
-                },
+            "head": OpenCVCameraConfig(
+                camera_index=0,
+                fps=30,
+                width=640,
+                height=480,
             ),
-        }
-    )
-
-    follower_arms: dict[str, MotorsBusConfig] = field(
-        default_factory=lambda: {
-            "main": FeetechMotorsBusConfig(
-                port="COM5",
-                motors={
-                    # name: (index, model)
-                    "module1": [1, "scs0009"],
-                    "module2": [2, "scs0009"],
-                    "module3": [3, "scs0009"],
-                    "module4": [4, "scs0009"],
-                    "module5": [5, "scs0009"],
-                    "module6": [6, "scs0009"],
-                    "module7": [7, "scs0009"],
-                    "module8": [8, "scs0009"],
-                },
-            ),
-        }
-    )
-
-    cameras: dict[str, CameraConfig] = field(
-        default_factory=lambda: {
-            # "head": OpenCVCameraConfig(
-            #     camera_index=0,
-            #     fps=30,
-            #     width=640,
-            #     height=480,
-            # ),
             # "module8_a": OpenCVCameraConfig(
             #     camera_index=3,
             #     fps=30,

@@ -36,21 +36,21 @@ def get_default_motor_values(motor_index):
         # Key (int) are from SCS_SERIES_CONTROL_TABLE
         5: motor_index,  # ID
         6: DEFAULT_BAUDRATE,  # Baud_rate
-        # 10: 0,  # Drive_Mode
-        # 21: 32,  # P_Coefficient
-        # 22: 32,  # D_Coefficient
-        # 23: 0,  # I_Coefficient
-        # 40: 0,  # Torque_Enable
-        # 41: 254,  # Acceleration
-        # 31: -2047,  # Offset
-        # 33: 0,  # Mode
-        # 55: 1,  # Lock
-        # # Set 2560 since calibration values for Aloha gripper is between start_pos=2499 and end_pos=3144
-        # # For other joints, 2560 will be autocorrected to be in calibration range
-        # 56: 2560,  # Present_Position
-        # 58: 0,  # Present_Speed
-        # 69: 0,  # Present_Current
-        # 85: 150,  # Maximum_Acceleration
+        10: 0,  # Drive_Mode
+        21: 32,  # P_Coefficient
+        22: 32,  # D_Coefficient
+        23: 0,  # I_Coefficient
+        40: 0,  # Torque_Enable
+        41: 254,  # Acceleration
+        31: -2047,  # Offset
+        33: 0,  # Mode
+        55: 1,  # Lock
+        # Set 2560 since calibration values for Aloha gripper is between start_pos=2499 and end_pos=3144
+        # For other joints, 2560 will be autocorrected to be in calibration range
+        56: 2560,  # Present_Position
+        58: 0,  # Present_Speed
+        69: 0,  # Present_Current
+        85: 150,  # Maximum_Acceleration
     }
 
 

@@ -40,8 +40,8 @@ MAX_ID_RANGE = 252
 # an error is raised.
 # LOWER_BOUND_DEGREE = -270
 # UPPER_BOUND_DEGREE = 270
-LOWER_BOUND_DEGREE = -8
-UPPER_BOUND_DEGREE = 55
+LOWER_BOUND_DEGREE = -1
+UPPER_BOUND_DEGREE = 201
 # For joints in percentage (i.e. joints that move linearly like the prismatic joint of a gripper),
 # their nominal range is [0, 100] %. For instance, for Aloha gripper, 0% is fully
 # closed, and 100% is fully open. To account for slight calibration issue, we allow up to
@@ -121,25 +121,22 @@ CONVERT_UINT32_TO_INT32_REQUIRED = ["Goal_Position", "Present_Position"]
 
 
 MODEL_CONTROL_TABLE = {
-    "scs0009": SCS_SERIES_CONTROL_TABLE,
     "scs_series": SCS_SERIES_CONTROL_TABLE,
     "sts3215": SCS_SERIES_CONTROL_TABLE,
 }
 
 MODEL_RESOLUTION = {
-    "scs0009": 4096,
     "scs_series": 4096,
     "sts3215": 4096,
 }
 
 MODEL_BAUDRATE_TABLE = {
-    "scs0009": SCS_SERIES_BAUDRATE_TABLE,
     "scs_series": SCS_SERIES_BAUDRATE_TABLE,
     "sts3215": SCS_SERIES_BAUDRATE_TABLE,
 }
 
 # High number of retries is needed for feetech compared to dynamixel motors.
-NUM_READ_RETRY = 200
+NUM_READ_RETRY = 20
 NUM_WRITE_RETRY = 20
 
 
@@ -734,6 +731,9 @@ class FeetechMotorsBus:
 
         assert_same_address(self.model_ctrl_table, models, data_name)
         addr, bytes = self.model_ctrl_table[model][data_name]
+        print("data_name:",data_name)
+        print("addr:",addr)
+        print("bytes:",bytes)
         group_key = get_group_sync_key(data_name, motor_names)
 
         if data_name not in self.group_readers:
@@ -747,32 +747,21 @@ class FeetechMotorsBus:
             )
             for idx in motor_ids:
                 self.group_readers[group_key].addParam(idx)
-        if self.motor_models[0] != 'scs0009':
-            for _ in range(NUM_READ_RETRY):
-                comm = self.group_readers[group_key].txRxPacket()
-                if comm == scs.COMM_SUCCESS:
-                    break
 
-            if comm != scs.COMM_SUCCESS:
-                raise ConnectionError(
-                    f"Read failed due to communication error on port {self.port} for group_key {group_key}: "
-                    f"{self.packet_handler.getTxRxResult(comm)}"
-                )
+        for _ in range(NUM_READ_RETRY):
+            comm = self.group_readers[group_key].txRxPacket()
+            if comm == scs.COMM_SUCCESS:
+                break
+
+        if comm != scs.COMM_SUCCESS:
+            raise ConnectionError(
+                f"Read failed due to communication error on port {self.port} for group_key {group_key}: "
+                f"{self.packet_handler.getTxRxResult(comm)}"
+            )
 
         values = []
         for idx in motor_ids:
-            if self.motor_models[0] == 'scs0009':
-                if bytes == 1:
-                    value, comm, error = self.packet_handler.read1ByteTxRx(self.port_handler, idx, addr)
-                elif bytes == 2:
-                    value, comm, error = self.packet_handler.read2ByteTxRx(self.port_handler, idx, addr)
-                if comm != scs.COMM_SUCCESS or error != 0:
-                    raise ConnectionError(
-                        f"Read failed due to communication error on port {self.port} for idx {idx}: "
-                        f"{self.packet_handler.getTxRxResult(comm)}"
-                    )
-            else:
-                value = self.group_readers[group_key].getData(idx, addr, bytes)
+            value = self.group_readers[group_key].getData(idx, addr, bytes)
             values.append(value)
 
         values = np.array(values)
@@ -862,7 +851,7 @@ class FeetechMotorsBus:
 
         # if data_name == "Goal_Position":
         #     print("revert_calibration Goal_Position:", values)
-        #     return 1
+            # return 1
 
         values = values.tolist()
 
@@ -871,39 +860,24 @@ class FeetechMotorsBus:
         group_key = get_group_sync_key(data_name, motor_names)
 
         init_group = data_name not in self.group_readers
-        # print("addr:",addr)
-        # print("bytes:",bytes)
-        # print("self.port_handler.port_name:",self.port_handler.port_name)
-        if self.motor_models[0] != 'scs0009':
+        if init_group:
+            self.group_writers[group_key] = scs.GroupSyncWrite(
+                self.port_handler, self.packet_handler, addr, bytes
+            )
+
+        for idx, value in zip(motor_ids, values, strict=True):
+            data = convert_to_bytes(value, bytes, self.mock)
             if init_group:
-                self.group_writers[group_key] = scs.GroupSyncWrite(
-                    self.port_handler, self.packet_handler, addr, bytes
-                )
+                self.group_writers[group_key].addParam(idx, data)
+            else:
+                self.group_writers[group_key].changeParam(idx, data)
 
-            for idx, value in zip(motor_ids, values, strict=True):
-                data = convert_to_bytes(value, bytes, self.mock)
-                if init_group:
-                    self.group_writers[group_key].addParam(idx, data)
-                else:
-                    self.group_writers[group_key].changeParam(idx, data)
-
-            comm = self.group_writers[group_key].txPacket()
-            if comm != scs.COMM_SUCCESS:
-                raise ConnectionError(
-                    f"Write failed due to communication error on port {self.port} for group_key {group_key}: "
-                    f"{self.packet_handler.getTxRxResult(comm)}"
-                )
-        elif self.motor_models[0] == "scs0009":
-            for idx, value in zip(motor_ids, values, strict=True):
-                if bytes == 1:
-                    comm, error = self.packet_handler.write1ByteTxRx(self.port_handler, idx, addr, value)
-                elif bytes == 2:
-                    comm, error = self.packet_handler.write2ByteTxRx(self.port_handler, idx, addr, value)
-                if comm != scs.COMM_SUCCESS or error != 0:
-                    raise ConnectionError(
-                        f"Write failed due to communication error on port {self.port} for idx {idx}: "
-                        f"{self.packet_handler.getTxRxResult(comm)}"
-                    )
+        comm = self.group_writers[group_key].txPacket()
+        if comm != scs.COMM_SUCCESS:
+            raise ConnectionError(
+                f"Write failed due to communication error on port {self.port} for group_key {group_key}: "
+                f"{self.packet_handler.getTxRxResult(comm)}"
+            )
 
         # log the number of seconds it took to write the data to the motors
         delta_ts_name = get_log_name("delta_timestamp_s", "write", data_name, motor_names)

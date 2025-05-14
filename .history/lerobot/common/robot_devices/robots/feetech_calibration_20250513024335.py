@@ -433,9 +433,8 @@ def run_arm_manual_calibration(arm: MotorsBus, robot_type: str, arm_name: str, a
     run_arm_calibration(arm, "so100", "left", "follower")
     ```
     """
-    # print("arm:",arm.motors['module1'])
-    # print("arm:",arm.motor_names)
-    # print("read:",arm.read("Torque_Enable"))
+    print("read:",arm.read("Torque_Enable"))
+    print("TorqueMode.DISABLED.value:",TorqueMode.DISABLED.value)
     if (arm.read("Torque_Enable") != TorqueMode.DISABLED.value).any():
         raise ValueError("To run calibration, the torque must be disabled on all motors.")
 
