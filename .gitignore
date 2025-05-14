@@ -173,7 +173,6 @@ dmypy.json
 cython_debug/
 
 # lfs
-tests/
 # *.memmap
 # *.stl
 # *.safetensors
