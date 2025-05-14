@@ -173,8 +173,8 @@ dmypy.json
 cython_debug/
 
 # lfs
-*.memmap
-*.stl
-*.safetensors
-*.mp4
-*.arrow
+# *.memmap
+# *.stl
+# *.safetensors
+# *.mp4
+# *.arrow
